@@ -1,26 +1,46 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
 
-function App() {
+// Import all components
+import { LoginPage } from './components/LoginPage';
+import { Dashboard } from './components/Dashboard';
+import { TransactionTable } from './components/TransactionTable';
+import { AlertsPage } from './components/AlertsPage';
+import { DownloadPage } from './components/DownloadPage';
+import { Sidebar } from './components/Sidebar';
+import { Header } from './components/Header';
+
+export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentPage, setCurrentPage] = useState('dashboard');
+
+  if (!isAuthenticated) {
+    return <LoginPage onLogin={() => setIsAuthenticated(true)} />;
+  }
+
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'dashboard':
+        return <Dashboard />;
+      case 'transactions':
+        return <TransactionTable />;
+      case 'alerts':
+        return <AlertsPage />;
+      case 'download':
+        return <DownloadPage />;
+      default:
+        return <Dashboard />;
+    }
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="flex h-screen bg-slate-50">
+      <Sidebar currentPage={currentPage} onPageChange={setCurrentPage} />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Header />
+        <main className="flex-1 overflow-auto">
+          {renderPage()}
+        </main>
+      </div>
     </div>
   );
 }
-
-export default App;
