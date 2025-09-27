@@ -1,4 +1,5 @@
 import { supabase, BillingTransaction, Anomaly, Alert } from '../lib/supabase';
+import { mlFraudService } from './mlFraudService';
 
 export interface FraudDetectionResult {
   isAnomalous: boolean;
@@ -9,6 +10,9 @@ export interface FraudDetectionResult {
   reason: string;
   preventativeAction: string;
   scoreBreakdown: ScoreBreakdown[];
+  mlRiskScore?: number;
+  confidence: number;
+  primarySource: 'rules' | 'ml' | 'ensemble';
 }
 
 export interface ScoreBreakdown {
@@ -90,15 +94,16 @@ export class FraudDetectionService {
   public async analyzeTransaction(transaction: BillingTransaction): Promise<FraudDetectionResult> {
     const flags: string[] = [];
     const scoreBreakdown: ScoreBreakdown[] = [];
-    let totalRiskScore = 0;
+    let ruleBasedScore = 0;
     let maxSeverity: 'critical' | 'high' | 'medium' | 'low' = 'low';
 
+    // Step 1: Rule-based analysis (existing logic)
     for (const rule of this.validationRules) {
       try {
         const isViolated = await rule.check(transaction);
         if (isViolated) {
           flags.push(rule.name);
-          totalRiskScore += rule.points;
+          ruleBasedScore += rule.points;
 
           scoreBreakdown.push({
             rule: rule.name,
@@ -115,24 +120,45 @@ export class FraudDetectionService {
       }
     }
 
-    // Cap risk score at 100
-    totalRiskScore = Math.min(totalRiskScore, 100);
+    // Cap rule-based score at 100
+    ruleBasedScore = Math.min(ruleBasedScore, 100);
 
-    // Determine risk level based on score
-    const riskLevel = this.calculateRiskLevel(totalRiskScore);
+    // Step 2: ML-based analysis (parallel execution)
+    const mlRiskScore = await mlFraudService.getMlRiskScore(transaction);
+
+    // Step 3: Ensemble scoring (70% rules + 30% ML)
+    const ensembleScore = this.calculateEnsembleScore(ruleBasedScore, mlRiskScore);
+    const confidence = this.calculateConfidence(ruleBasedScore, mlRiskScore);
+    const primarySource = this.determinePrimarySource(ruleBasedScore, mlRiskScore);
+
+    // Add ML score to breakdown if available
+    if (mlRiskScore > 0) {
+      scoreBreakdown.push({
+        rule: 'ml_risk_assessment',
+        points: Math.round(mlRiskScore * 0.3), // Show ML contribution (30% weight)
+        description: `Machine Learning risk assessment (${mlRiskScore.toFixed(1)}/100)`
+      });
+    }
+
+    // Determine risk level based on ensemble score
+    const riskLevel = this.calculateRiskLevel(ensembleScore);
     const preventativeAction = this.getPreventativeAction(riskLevel, flags);
 
+    // Enhanced reason with ML context
+    const reason = this.generateEnhancedReason(flags, ruleBasedScore, mlRiskScore, primarySource);
+
     return {
-      isAnomalous: flags.length > 0,
-      riskScore: totalRiskScore,
+      isAnomalous: flags.length > 0 || ensembleScore >= 25,
+      riskScore: ensembleScore,
       riskLevel,
       flags,
       severity: maxSeverity,
-      reason: flags.length > 0 ?
-        `Detected ${flags.length} anomaly flag(s): ${flags.join(', ')}` :
-        'No anomalies detected',
+      reason,
       preventativeAction,
-      scoreBreakdown
+      scoreBreakdown,
+      mlRiskScore,
+      confidence,
+      primarySource
     };
   }
 
@@ -309,6 +335,79 @@ export class FraudDetectionService {
     }
 
     return { anomaly, alert, detectionResult, shouldBlock };
+  }
+
+  // New ensemble scoring methods
+  private calculateEnsembleScore(ruleBasedScore: number, mlRiskScore: number): number {
+    // Weighted average: 70% rules + 30% ML
+    const RULE_WEIGHT = 0.7;
+    const ML_WEIGHT = 0.3;
+
+    const ensembleScore = (ruleBasedScore * RULE_WEIGHT) + (mlRiskScore * ML_WEIGHT);
+    return Math.min(Math.round(ensembleScore), 100);
+  }
+
+  private calculateConfidence(ruleBasedScore: number, mlRiskScore: number): number {
+    // Confidence is higher when both systems agree
+    if (mlRiskScore === 0) {
+      // Only rule-based system available
+      return ruleBasedScore > 0 ? 0.8 : 0.9;
+    }
+
+    const scoreDifference = Math.abs(ruleBasedScore - mlRiskScore);
+    const maxPossibleDifference = 100;
+    const agreement = 1 - (scoreDifference / maxPossibleDifference);
+
+    // Base confidence + agreement bonus
+    return Math.min(0.6 + (agreement * 0.4), 1.0);
+  }
+
+  private determinePrimarySource(ruleBasedScore: number, mlRiskScore: number): 'rules' | 'ml' | 'ensemble' {
+    if (mlRiskScore === 0) {
+      return 'rules'; // ML service unavailable
+    }
+
+    const scoreDifference = Math.abs(ruleBasedScore - mlRiskScore);
+
+    if (scoreDifference <= 15) {
+      return 'ensemble'; // Both systems generally agree
+    } else if (ruleBasedScore > mlRiskScore) {
+      return 'rules'; // Rules detected more risk
+    } else {
+      return 'ml'; // ML detected more risk
+    }
+  }
+
+  private generateEnhancedReason(flags: string[], ruleBasedScore: number, mlRiskScore: number, primarySource: string): string {
+    const ruleCount = flags.length;
+
+    if (ruleCount === 0 && mlRiskScore <= 25) {
+      return 'No significant anomalies detected by rules or ML analysis';
+    }
+
+    let reason = '';
+
+    if (ruleCount > 0) {
+      reason = `Detected ${ruleCount} rule violation(s): ${flags.join(', ')}`;
+    }
+
+    if (mlRiskScore > 0) {
+      const mlRisk = mlRiskScore > 50 ? 'HIGH' : mlRiskScore > 25 ? 'MEDIUM' : 'LOW';
+      const mlPart = `ML risk assessment: ${mlRisk} (${mlRiskScore.toFixed(1)}/100)`;
+
+      reason = reason ? `${reason}. ${mlPart}` : mlPart;
+    }
+
+    // Add ensemble context
+    if (primarySource === 'ensemble') {
+      reason += '. Both systems in agreement';
+    } else if (primarySource === 'ml') {
+      reason += '. ML detected higher risk than rules';
+    } else if (primarySource === 'rules') {
+      reason += '. Rule-based analysis primary indicator';
+    }
+
+    return reason;
   }
 }
 
