@@ -33,11 +33,15 @@ describe('Fraud Detection Performance Tests', () => {
     transaction_id: `TX${id}`,
     provider_id: 'PROV001',
     amount: 1000,
+    currency: 'USD',
     transaction_date: '2024-01-15T10:30:00Z',
     patient_id: 'PAT001',
     procedure_code: '99213',
     diagnosis_code: 'Z00.00',
+    status: 'pending',
+    risk_score: 0,
     created_at: '2024-01-15T10:30:00Z',
+    updated_at: '2024-01-15T10:30:00Z',
     ...overrides
   });
 

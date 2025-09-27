@@ -38,11 +38,15 @@ describe('FraudDetectionService', () => {
     transaction_id: 'TX123456',
     provider_id: 'PROV001',
     amount: 1000,
+    currency: 'USD',
     transaction_date: '2024-01-15T10:30:00Z',
     patient_id: 'PAT001',
     procedure_code: '99213',
     diagnosis_code: 'Z00.00',
-    created_at: '2024-01-15T10:30:00Z'
+    status: 'pending',
+    risk_score: 0,
+    created_at: '2024-01-15T10:30:00Z',
+    updated_at: '2024-01-15T10:30:00Z'
   };
 
   beforeEach(() => {
@@ -153,7 +157,9 @@ describe('FraudDetectionService', () => {
         severity: 'critical',
         reason: 'Test anomaly',
         preventativeAction: 'Test action',
-        scoreBreakdown: []
+        scoreBreakdown: [],
+        confidence: 0.85,
+        primarySource: 'rules'
       };
 
       const result = await fraudDetectionService.createAnomalyRecord(mockTransaction, detectionResult);
@@ -170,7 +176,9 @@ describe('FraudDetectionService', () => {
         severity: 'low',
         reason: 'No anomalies',
         preventativeAction: 'Process normally',
-        scoreBreakdown: []
+        scoreBreakdown: [],
+        confidence: 0.15,
+        primarySource: 'rules'
       };
 
       const result = await fraudDetectionService.createAnomalyRecord(mockTransaction, detectionResult);

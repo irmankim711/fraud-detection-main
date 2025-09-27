@@ -286,7 +286,7 @@ const FraudMonitoringDashboard: React.FC = () => {
                   <p className="text-sm text-gray-600 mb-2">{alert.description}</p>
                   <div className="flex justify-between text-xs text-gray-500">
                     <span>
-                      {alert.anomalies?.transaction_id}
+                      {alert.anomaly?.transaction_id}
                     </span>
                     <span>
                       {new Date(alert.created_at).toLocaleTimeString()}

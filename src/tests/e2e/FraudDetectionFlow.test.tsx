@@ -535,7 +535,7 @@ describe('End-to-End Fraud Detection Flow', () => {
     });
 
     it('should support keyboard navigation', async () => {
-      const user = userEvent.setup();
+      const user = userEvent;
 
       await act(async () => {
         render(<App />);

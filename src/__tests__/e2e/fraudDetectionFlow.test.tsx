@@ -161,7 +161,7 @@ describe('End-to-End Fraud Detection Flow', () => {
 
   describe('Complete User Journey', () => {
     it('should complete full fraud detection workflow', async () => {
-      const user = userEvent.setup();
+      const user = userEvent;
 
       await act(async () => {
         render(<App />);
@@ -224,7 +224,7 @@ describe('End-to-End Fraud Detection Flow', () => {
     }, 10000);
 
     it('should handle normal transaction analysis', async () => {
-      const user = userEvent.setup();
+      const user = userEvent;
 
       await act(async () => {
         render(<App />);
@@ -270,7 +270,7 @@ describe('End-to-End Fraud Detection Flow', () => {
 
   describe('Real-time Monitoring', () => {
     it('should start and stop monitoring', async () => {
-      const user = userEvent.setup();
+      const user = userEvent;
 
       await act(async () => {
         render(<App />);
@@ -339,7 +339,7 @@ describe('End-to-End Fraud Detection Flow', () => {
 
   describe('Authentication Flow', () => {
     it('should handle sign out', async () => {
-      const user = userEvent.setup();
+      const user = userEvent;
 
       await act(async () => {
         render(<App />);
@@ -364,7 +364,7 @@ describe('End-to-End Fraud Detection Flow', () => {
 
   describe('Data Refresh', () => {
     it('should refresh data when refresh button is clicked', async () => {
-      const user = userEvent.setup();
+      const user = userEvent;
 
       await act(async () => {
         render(<App />);
@@ -394,7 +394,7 @@ describe('End-to-End Fraud Detection Flow', () => {
 
   describe('Accessibility', () => {
     it('should be accessible with keyboard navigation', async () => {
-      const user = userEvent.setup();
+      const user = userEvent;
 
       await act(async () => {
         render(<App />);

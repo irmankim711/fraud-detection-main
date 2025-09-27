@@ -59,11 +59,15 @@ describe('Supabase Integration Tests', () => {
     transaction_id: 'TX123456',
     provider_id: 'PROV001',
     amount: 10000, // High amount to trigger fraud detection
+    currency: 'USD',
     transaction_date: '2024-01-15T10:30:00Z',
     patient_id: 'PAT001',
     procedure_code: '99213',
     diagnosis_code: 'I10',
-    created_at: '2024-01-15T10:30:00Z'
+    status: 'pending',
+    risk_score: 0,
+    created_at: '2024-01-15T10:30:00Z',
+    updated_at: '2024-01-15T10:30:00Z'
   };
 
   beforeEach(() => {
