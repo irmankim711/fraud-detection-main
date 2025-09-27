@@ -3,19 +3,20 @@ import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { AuthProvider, useAuth } from '../../contexts/AuthContext';
 
 // Mock Supabase
-const mockAuth = {
-  getSession: jest.fn(),
-  onAuthStateChange: jest.fn(),
-  signInWithPassword: jest.fn(),
-  signUp: jest.fn(),
-  signOut: jest.fn(),
-};
-
 jest.mock('../../lib/supabase', () => ({
   supabase: {
-    auth: mockAuth,
+    auth: {
+      getSession: jest.fn(),
+      onAuthStateChange: jest.fn(),
+      signInWithPassword: jest.fn(),
+      signUp: jest.fn(),
+      signOut: jest.fn(),
+    },
   },
 }));
+
+// Get the mock after jest.mock is called
+const mockAuth = require('../../lib/supabase').supabase.auth;
 
 // Test component to access auth context
 const TestComponent = () => {

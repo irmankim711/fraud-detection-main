@@ -1,11 +1,11 @@
+// Mock environment variables
+process.env.REACT_APP_SUPABASE_URL = 'https://test.supabase.co';
+process.env.REACT_APP_SUPABASE_ANON_KEY = 'test-key';
+
 import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../../App';
-
-// Mock environment variables
-process.env.REACT_APP_SUPABASE_URL = 'https://test.supabase.co';
-process.env.REACT_APP_SUPABASE_ANON_KEY = 'test-key';
 
 // Mock Supabase with realistic data
 const mockTransactions = [

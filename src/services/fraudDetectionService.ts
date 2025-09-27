@@ -409,6 +409,25 @@ export class FraudDetectionService {
 
     return reason;
   }
+
+  /**
+   * Clean up resources and reset the singleton instance
+   * Useful for memory management in long-running applications
+   */
+  public static cleanup(): void {
+    FraudDetectionService.instance = undefined as any;
+  }
+
+  /**
+   * Get memory usage statistics
+   */
+  public getMemoryStats(): { validationRulesCount: number; estimatedMemoryKB: number } {
+    const rulesMemory = this.validationRules.length * 1; // Rough estimate: 1KB per rule
+    return {
+      validationRulesCount: this.validationRules.length,
+      estimatedMemoryKB: rulesMemory
+    };
+  }
 }
 
 export const fraudDetectionService = FraudDetectionService.getInstance();

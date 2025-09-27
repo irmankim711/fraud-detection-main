@@ -18,8 +18,8 @@ cp .env.example .env
 
 The `.env` file should contain:
 ```
-SUPABASE_URL=https://lyqyonyiyknbnljynwkn.supabase.co
-SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your_supabase_anon_key_here
 PORT=5000
 NODE_ENV=development
 ML_SERVICE_URL=http://localhost:8001

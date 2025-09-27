@@ -15,9 +15,14 @@ export class MLFraudService {
    * Returns 0 if service is unavailable (graceful fallback)
    */
   public async getMlRiskScore(transaction: BillingTransaction): Promise<number> {
+    let controller: AbortController | null = null;
+    let timeoutId: NodeJS.Timeout | null = null;
+
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), this.TIMEOUT_MS);
+      controller = new AbortController();
+      timeoutId = setTimeout(() => {
+        if (controller) controller.abort();
+      }, this.TIMEOUT_MS);
 
       const response = await fetch(`${this.ML_SERVICE_URL}/api/fraud-check`, {
         method: 'POST',
@@ -36,8 +41,6 @@ export class MLFraudService {
         }),
         signal: controller.signal
       });
-
-      clearTimeout(timeoutId);
 
       if (!response.ok) {
         console.warn(`ML service returned ${response.status}: ${response.statusText}`);
@@ -58,6 +61,12 @@ export class MLFraudService {
         }
       }
       return 0; // Graceful fallback - let rule-based system handle everything
+    } finally {
+      // Ensure cleanup always happens
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      controller = null; // Explicitly release reference
     }
   }
 
@@ -65,9 +74,14 @@ export class MLFraudService {
    * Gets detailed ML prediction with action recommendation
    */
   public async getMlPrediction(transaction: BillingTransaction): Promise<MLPredictionResult | null> {
+    let controller: AbortController | null = null;
+    let timeoutId: NodeJS.Timeout | null = null;
+
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), this.TIMEOUT_MS);
+      controller = new AbortController();
+      timeoutId = setTimeout(() => {
+        if (controller) controller.abort();
+      }, this.TIMEOUT_MS);
 
       const response = await fetch(`${this.ML_SERVICE_URL}/api/fraud-check`, {
         method: 'POST',
@@ -87,8 +101,6 @@ export class MLFraudService {
         signal: controller.signal
       });
 
-      clearTimeout(timeoutId);
-
       if (!response.ok) {
         return null;
       }
@@ -98,6 +110,12 @@ export class MLFraudService {
     } catch (error) {
       console.warn('ML prediction service error:', error);
       return null;
+    } finally {
+      // Ensure cleanup always happens
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      controller = null; // Explicitly release reference
     }
   }
 
@@ -105,20 +123,30 @@ export class MLFraudService {
    * Check if ML service is available
    */
   public async isServiceAvailable(): Promise<boolean> {
+    let controller: AbortController | null = null;
+    let timeoutId: NodeJS.Timeout | null = null;
+
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 second timeout for health check
+      controller = new AbortController();
+      timeoutId = setTimeout(() => {
+        if (controller) controller.abort();
+      }, 2000); // 2 second timeout for health check
 
       const response = await fetch(`${this.ML_SERVICE_URL}/docs`, {
         method: 'GET',
         signal: controller.signal
       });
 
-      clearTimeout(timeoutId);
       return response.ok;
 
     } catch (error) {
       return false;
+    } finally {
+      // Ensure cleanup always happens
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      controller = null; // Explicitly release reference
     }
   }
 }

@@ -14,7 +14,7 @@ This directory contains the complete PostgreSQL database schema for the healthca
 ### 1. Access Your Supabase Database
 
 1. Go to your Supabase project dashboard: https://supabase.com/dashboard
-2. Navigate to your project: `lyqyonyiyknbnljynwkn`
+2. Navigate to your project
 3. Go to the SQL Editor
 
 ### 2. Run the Schema Files in Order
@@ -123,8 +123,8 @@ All tables have RLS enabled with policies that:
 
 Update your `.env` file:
 ```
-REACT_APP_SUPABASE_URL=https://lyqyonyiyknbnljynwkn.supabase.co
-REACT_APP_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5cXlvbnlpeWtuYm5sanlud2tuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg4OTk3MzcsImV4cCI6MjA3NDQ3NTczN30.ome3LuG_nS5JsNmy8SUGKkymaUtbnRxCy0knshnth5I
+REACT_APP_SUPABASE_URL=https://your-project.supabase.co
+REACT_APP_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 ```
 
 ### Sample Queries for Your Components

@@ -27,6 +27,16 @@ mockSupabaseQuery.single.mockResolvedValue({
   error: null
 });
 
+// Mock insert chain for anomaly creation
+mockSupabaseQuery.insert.mockReturnValue({
+  select: jest.fn().mockReturnValue({
+    single: jest.fn().mockResolvedValue({
+      data: { id: 'test-id', transaction_id: 'test-tx', risk_score: 85 },
+      error: null
+    })
+  })
+});
+
 jest.mock('../../lib/supabase', () => ({
   supabase: {
     from: jest.fn(() => mockSupabaseQuery),
@@ -62,6 +72,20 @@ describe('FraudDetectionService', () => {
     // Reset to default successful responses
     mockSupabaseQuery.neq.mockResolvedValue({ data: [], error: null });
     mockSupabaseQuery.gte.mockResolvedValue({ data: [], error: null });
+    mockSupabaseQuery.single.mockResolvedValue({
+      data: { id: 'test-id', transaction_id: 'test-tx', risk_score: 85 },
+      error: null
+    });
+
+    // Reset insert chain for anomaly creation
+    mockSupabaseQuery.insert.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        single: jest.fn().mockResolvedValue({
+          data: { id: 'test-id', transaction_id: 'test-tx', risk_score: 85 },
+          error: null
+        })
+      })
+    });
   });
 
   describe('Singleton Pattern', () => {
@@ -126,6 +150,7 @@ describe('FraudDetectionService', () => {
     it('should detect unusual time billing', async () => {
       const nightTransaction = {
         ...mockTransaction,
+        amount: 300, // Below the 99213 threshold of 500 to avoid excessive_amount flag
         transaction_date: '2024-01-15T02:30:00Z' // 2:30 AM
       };
 
@@ -155,7 +180,12 @@ describe('FraudDetectionService', () => {
         error: null
       });
 
-      const result = await fraudDetectionService.analyzeTransaction(mockTransaction);
+      const testTransaction = {
+        ...mockTransaction,
+        amount: 300 // Below threshold to avoid excessive_amount flag
+      };
+
+      const result = await fraudDetectionService.analyzeTransaction(testTransaction);
 
       expect(result.flags).toContain('duplicate_transaction');
       expect(result.riskScore).toBeGreaterThan(0);
@@ -168,20 +198,29 @@ describe('FraudDetectionService', () => {
         error: null
       });
 
-      const result = await fraudDetectionService.analyzeTransaction(mockTransaction);
+      const testTransaction = {
+        ...mockTransaction,
+        amount: 300 // Below threshold to avoid excessive_amount flag
+      };
+
+      const result = await fraudDetectionService.analyzeTransaction(testTransaction);
 
       expect(result.flags).toContain('provider_frequency');
       expect(result.riskScore).toBeGreaterThan(0);
     });
 
     it('should calculate correct risk levels', async () => {
+      // Reset mocks to ensure no false positives from database queries
+      mockSupabaseQuery.neq.mockResolvedValue({ data: [], error: null });
+      mockSupabaseQuery.gte.mockResolvedValue({ data: [], error: null });
+
       // Test critical risk (score >= 70)
       const criticalTransaction = {
         ...mockTransaction,
         amount: 50000, // Excessive amount (30 points)
         procedure_code: '90834', // Incompatible with diagnosis (25 points)
         diagnosis_code: 'Z00.00',
-        transaction_date: '2024-01-13T02:30:00Z' // Weekend + unusual time (15 points total)
+        transaction_date: '2024-01-13T02:30:00Z' // Weekend (10) + unusual time (5) = 15 points
       };
 
       const result = await fraudDetectionService.analyzeTransaction(criticalTransaction);

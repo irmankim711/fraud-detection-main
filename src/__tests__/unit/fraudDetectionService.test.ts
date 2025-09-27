@@ -1,35 +1,49 @@
 import { fraudDetectionService, FraudDetectionResult } from '../../services/fraudDetectionService';
 import { BillingTransaction } from '../../lib/supabase';
 
-// Mock Supabase
+// Mock Supabase with proper query chaining
+const mockSupabaseQuery = {
+  select: jest.fn(),
+  eq: jest.fn(),
+  gte: jest.fn(),
+  neq: jest.fn(),
+  insert: jest.fn(),
+  single: jest.fn(),
+};
+
+// Chain all methods to return the mock query object
+mockSupabaseQuery.select.mockReturnValue(mockSupabaseQuery);
+mockSupabaseQuery.eq.mockReturnValue(mockSupabaseQuery);
+mockSupabaseQuery.gte.mockReturnValue(mockSupabaseQuery);
+mockSupabaseQuery.neq.mockReturnValue(mockSupabaseQuery);
+mockSupabaseQuery.insert.mockReturnValue(mockSupabaseQuery);
+mockSupabaseQuery.single.mockReturnValue(mockSupabaseQuery);
+
+// Default successful response
+mockSupabaseQuery.neq.mockResolvedValue({ data: [], error: null });
+mockSupabaseQuery.gte.mockResolvedValue({ data: [], error: null });
+mockSupabaseQuery.single.mockResolvedValue({
+  data: { id: 'test-id', transaction_id: 'test-tx', risk_score: 85 },
+  error: null
+});
+
+// Mock insert chain for anomaly creation
+mockSupabaseQuery.insert.mockReturnValue({
+  select: jest.fn().mockReturnValue({
+    single: jest.fn().mockResolvedValue({
+      data: { id: 'test-id', transaction_id: 'test-tx', risk_score: 85 },
+      error: null
+    })
+  })
+});
+
 jest.mock('../../lib/supabase', () => ({
   supabase: {
-    from: jest.fn(() => ({
-      select: jest.fn(() => ({
-        eq: jest.fn(() => ({
-          eq: jest.fn(() => ({
-            gte: jest.fn(() => ({
-              neq: jest.fn(() => Promise.resolve({ data: [], error: null }))
-            })),
-            neq: jest.fn(() => Promise.resolve({ data: [], error: null }))
-          })),
-          gte: jest.fn(() => ({
-            neq: jest.fn(() => Promise.resolve({ data: [], error: null }))
-          }))
-        })),
-        gte: jest.fn(() => Promise.resolve({ data: [], error: null })),
-        neq: jest.fn(() => Promise.resolve({ data: [], error: null }))
-      })),
-      insert: jest.fn(() => ({
-        select: jest.fn(() => ({
-          single: jest.fn(() => Promise.resolve({
-            data: { id: 'test-id', transaction_id: 'test-tx', risk_score: 85 },
-            error: null
-          }))
-        }))
-      }))
-    }))
-  }
+    from: jest.fn(() => mockSupabaseQuery),
+  },
+  BillingTransaction: {},
+  Anomaly: {},
+  Alert: {},
 }));
 
 describe('FraudDetectionService', () => {
@@ -51,6 +65,24 @@ describe('FraudDetectionService', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+
+    // Reset to default successful responses
+    mockSupabaseQuery.neq.mockResolvedValue({ data: [], error: null });
+    mockSupabaseQuery.gte.mockResolvedValue({ data: [], error: null });
+    mockSupabaseQuery.single.mockResolvedValue({
+      data: { id: 'test-id', transaction_id: 'test-tx', risk_score: 85 },
+      error: null
+    });
+
+    // Reset insert chain for anomaly creation
+    mockSupabaseQuery.insert.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        single: jest.fn().mockResolvedValue({
+          data: { id: 'test-id', transaction_id: 'test-tx', risk_score: 85 },
+          error: null
+        })
+      })
+    });
   });
 
   describe('analyzeTransaction', () => {
@@ -96,6 +128,7 @@ describe('FraudDetectionService', () => {
     it('should detect unusual time billing', async () => {
       const nightTransaction = {
         ...mockTransaction,
+        amount: 300, // Below the 99213 threshold of 500 to avoid excessive_amount flag
         transaction_date: '2024-01-15T02:30:00Z' // 2:30 AM
       };
 
@@ -119,13 +152,17 @@ describe('FraudDetectionService', () => {
     });
 
     it('should calculate correct risk levels', async () => {
+      // Reset mocks to ensure no false positives from database queries
+      mockSupabaseQuery.neq.mockResolvedValue({ data: [], error: null });
+      mockSupabaseQuery.gte.mockResolvedValue({ data: [], error: null });
+
       // Test critical risk (score >= 70)
       const criticalTransaction = {
         ...mockTransaction,
         amount: 50000, // Excessive amount (30 points)
         procedure_code: '90834', // Incompatible with diagnosis (25 points)
         diagnosis_code: 'Z00.00',
-        transaction_date: '2024-01-13T02:30:00Z' // Weekend + unusual time (15 points total)
+        transaction_date: '2024-01-13T02:30:00Z' // Weekend (10) + unusual time (5) = 15 points
       };
 
       const result = await fraudDetectionService.analyzeTransaction(criticalTransaction);

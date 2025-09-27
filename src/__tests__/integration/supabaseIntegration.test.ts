@@ -1,11 +1,8 @@
-import { supabase, BillingTransaction } from '../../lib/supabase';
-import { fraudDetectionService } from '../../services/fraudDetectionService';
-
 // Mock environment variables for testing
 process.env.REACT_APP_SUPABASE_URL = 'https://test.supabase.co';
 process.env.REACT_APP_SUPABASE_ANON_KEY = 'test-key';
 
-// Mock Supabase client
+// Mock Supabase client - must be hoisted before imports
 jest.mock('@supabase/supabase-js', () => ({
   createClient: jest.fn(() => ({
     from: jest.fn(() => ({
@@ -52,6 +49,9 @@ jest.mock('@supabase/supabase-js', () => ({
     }
   }))
 }));
+
+import { supabase, BillingTransaction } from '../../lib/supabase';
+import { fraudDetectionService } from '../../services/fraudDetectionService';
 
 describe('Supabase Integration Tests', () => {
   const mockTransaction: BillingTransaction = {
