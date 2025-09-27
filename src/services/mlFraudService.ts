@@ -9,12 +9,51 @@ export interface MLPredictionResult {
 export class MLFraudService {
   private readonly ML_SERVICE_URL = 'http://localhost:8001';
   private readonly TIMEOUT_MS = 5000; // 5 second timeout
+  private failureCount = 0;
+  private lastFailureTime = 0;
+  private readonly MAX_FAILURES = 5;
+  private readonly FAILURE_RESET_TIME = 60000; // Reset after 1 minute
+
+  /**
+   * Check if circuit breaker should prevent requests
+   */
+  private shouldSkipRequest(): boolean {
+    const now = Date.now();
+
+    // Reset failure count if enough time has passed
+    if (now - this.lastFailureTime > this.FAILURE_RESET_TIME) {
+      this.failureCount = 0;
+    }
+
+    // Skip if too many failures recently
+    return this.failureCount >= this.MAX_FAILURES;
+  }
+
+  /**
+   * Record a failure for circuit breaker
+   */
+  private recordFailure(): void {
+    this.failureCount++;
+    this.lastFailureTime = Date.now();
+  }
+
+  /**
+   * Reset failure count on success
+   */
+  private recordSuccess(): void {
+    this.failureCount = 0;
+  }
 
   /**
    * Gets ML-based risk score for a billing transaction
    * Returns 0 if service is unavailable (graceful fallback)
    */
   public async getMlRiskScore(transaction: BillingTransaction): Promise<number> {
+    // Circuit breaker: skip if service is consistently failing
+    if (this.shouldSkipRequest()) {
+      return 0;
+    }
+
     let controller: AbortController | null = null;
     let timeoutId: NodeJS.Timeout | null = null;
 
@@ -43,16 +82,20 @@ export class MLFraudService {
       });
 
       if (!response.ok) {
+        this.recordFailure();
         console.warn(`ML service returned ${response.status}: ${response.statusText}`);
         return 0; // Fallback value
       }
 
       const result: MLPredictionResult = await response.json();
+      this.recordSuccess(); // Record successful response
 
       // Convert 0-1 ML score to 0-100 scale to match rule-based scoring
       return Math.min(Math.max(result.risk_score * 100, 0), 100);
 
     } catch (error) {
+      this.recordFailure(); // Record failure for circuit breaker
+
       if (error instanceof Error) {
         if (error.name === 'AbortError') {
           console.warn('ML service request timed out, falling back to rules only');
