@@ -1,67 +1,45 @@
 import React, { useState } from 'react';
-
-interface Transaction {
-  id: string;
-  amount: number;
-  currency: string;
-  merchant: string;
-  timestamp: string;
-  status: 'approved' | 'declined' | 'pending';
-  riskScore: number;
-}
-
-const mockTransactions: Transaction[] = [
-  {
-    id: 'TXN-001234',
-    amount: 1250.00,
-    currency: 'USD',
-    merchant: 'Amazon.com',
-    timestamp: '2023-12-15 14:30:22',
-    status: 'approved',
-    riskScore: 2.1
-  },
-  {
-    id: 'TXN-001235',
-    amount: 89.99,
-    currency: 'USD',
-    merchant: 'Netflix',
-    timestamp: '2023-12-15 13:22:10',
-    status: 'approved',
-    riskScore: 1.5
-  },
-  {
-    id: 'TXN-001236',
-    amount: 5000.00,
-    currency: 'USD',
-    merchant: 'Unknown Merchant',
-    timestamp: '2023-12-15 12:15:33',
-    status: 'declined',
-    riskScore: 9.8
-  },
-  {
-    id: 'TXN-001237',
-    amount: 45.50,
-    currency: 'USD',
-    merchant: 'Starbucks',
-    timestamp: '2023-12-15 11:45:18',
-    status: 'approved',
-    riskScore: 1.2
-  },
-  {
-    id: 'TXN-001238',
-    amount: 299.99,
-    currency: 'USD',
-    merchant: 'Best Buy',
-    timestamp: '2023-12-15 10:30:45',
-    status: 'pending',
-    riskScore: 4.5
-  }
-];
+import { useTransactions } from '../hooks/useTransactions';
+import { Transaction } from '../lib/supabase';
 
 export function TransactionTable() {
-  const [transactions] = useState<Transaction[]>(mockTransactions);
+  const { transactions, loading, error } = useTransactions();
   const [sortField, setSortField] = useState<keyof Transaction>('timestamp');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900">Transaction Monitor</h1>
+          <p className="text-gray-600 mt-2">Real-time transaction analysis and fraud detection</p>
+        </div>
+        <div className="bg-white rounded-lg shadow p-8 text-center">
+          <div className="text-lg font-medium text-gray-600">Loading transactions...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="p-6">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900">Transaction Monitor</h1>
+          <p className="text-gray-600 mt-2">Real-time transaction analysis and fraud detection</p>
+        </div>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <h3 className="text-lg font-medium text-red-800">Error Loading Transactions</h3>
+          <p className="text-red-600 mt-2">{error}</p>
+          <p className="text-sm text-red-600 mt-2">
+            Please ensure your Supabase database is set up correctly and try refreshing the page.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const handleSort = (field: keyof Transaction) => {
     if (field === sortField) {

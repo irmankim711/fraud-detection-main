@@ -1,154 +1,48 @@
-import React, { useState, useEffect } from 'react';
-
-// Enhanced interfaces for fraud-focused dashboard
-interface FraudAlert {
-  id: string;
-  type: 'billing_anomaly' | 'procurement_fraud' | 'duplicate_claims' | 'provider_fraud' | 'phantom_billing';
-  severity: 'critical' | 'high' | 'medium' | 'low';
-  title: string;
-  description: string;
-  timestamp: string;
-  claimId?: string;
-  providerId?: string;
-  patientId?: string;
-  estimatedLoss: number;
-  confidence: number;
-  status: 'active' | 'investigating' | 'resolved' | 'false_positive';
-  aiRecommendation: string;
-  urgencyLevel: 1 | 2 | 3 | 4 | 5;
-}
-
-interface PricingInsight {
-  category: string;
-  averageClaimAmount: number;
-  suspiciousClaimAmount: number;
-  variance: number;
-  flaggedClaims: number;
-  potentialSavings: number;
-}
-
-interface RealTimeMetrics {
-  totalClaims: number;
-  fraudulentDetected: number;
-  accuracyRate: number;
-  alertsToday: number;
-  totalFinancialImpact: number;
-  preventedLosses: number;
-  avgProcessingTime: number;
-  systemHealth: 'excellent' | 'good' | 'warning' | 'critical';
-  lastUpdated: string;
-}
-
-// Mock data with enhanced fraud focus
-const mockRealTimeMetrics: RealTimeMetrics = {
-  totalClaims: 67284,
-  fraudulentDetected: 189,
-  accuracyRate: 98.7,
-  alertsToday: 23,
-  totalFinancialImpact: 2847500,
-  preventedLosses: 1250000,
-  avgProcessingTime: 1.2,
-  systemHealth: 'good',
-  lastUpdated: new Date().toISOString()
-};
-
-const mockCriticalAlerts: FraudAlert[] = [
-  {
-    id: 'FA-001',
-    type: 'billing_anomaly',
-    severity: 'critical',
-    title: 'Unusual Billing Pattern Detected',
-    description: 'Healthcare provider submitting 300% more claims than average with identical diagnostic codes',
-    timestamp: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
-    claimId: 'CLM-2024-001567',
-    providerId: 'PROV-8834',
-    estimatedLoss: 125000,
-    confidence: 94,
-    status: 'active',
-    aiRecommendation: 'Immediate investigation required. Pattern matches known fraud scheme. Recommend claim suspension.',
-    urgencyLevel: 5
-  },
-  {
-    id: 'FA-002',
-    type: 'phantom_billing',
-    severity: 'high',
-    title: 'Phantom Billing Scheme',
-    description: 'Services billed for patients with no record of visit or treatment',
-    timestamp: new Date(Date.now() - 32 * 60 * 1000).toISOString(),
-    claimId: 'CLM-2024-001589',
-    providerId: 'PROV-2245',
-    patientId: 'PAT-9876',
-    estimatedLoss: 85000,
-    confidence: 91,
-    status: 'investigating',
-    aiRecommendation: 'Cross-reference patient records. High probability of fraudulent billing.',
-    urgencyLevel: 4
-  },
-  {
-    id: 'FA-003',
-    type: 'duplicate_claims',
-    severity: 'medium',
-    title: 'Duplicate Claim Submission',
-    description: 'Multiple identical claims submitted across different time periods',
-    timestamp: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
-    claimId: 'CLM-2024-001432',
-    providerId: 'PROV-5567',
-    estimatedLoss: 12500,
-    confidence: 87,
-    status: 'active',
-    aiRecommendation: 'Automatic rejection recommended. Clear duplicate pattern identified.',
-    urgencyLevel: 2
-  }
-];
-
-const mockPricingInsights: PricingInsight[] = [
-  {
-    category: 'Orthopedic Procedures',
-    averageClaimAmount: 15420,
-    suspiciousClaimAmount: 42800,
-    variance: 177.5,
-    flaggedClaims: 34,
-    potentialSavings: 234500
-  },
-  {
-    category: 'Diagnostic Imaging',
-    averageClaimAmount: 2800,
-    suspiciousClaimAmount: 8900,
-    variance: 218.0,
-    flaggedClaims: 67,
-    potentialSavings: 189000
-  },
-  {
-    category: 'Laboratory Tests',
-    averageClaimAmount: 450,
-    suspiciousClaimAmount: 1200,
-    variance: 166.7,
-    flaggedClaims: 123,
-    potentialSavings: 92250
-  }
-];
+import React, { useState } from 'react';
+import { useRealTimeMetrics, useCriticalAlerts, usePricingInsights } from '../hooks/useRealTimeData';
+import { FraudAlert, PricingInsight } from '../lib/supabase';
 
 export function Dashboard() {
-  const [metrics, setMetrics] = useState<RealTimeMetrics>(mockRealTimeMetrics);
-  const [alerts, setAlerts] = useState<FraudAlert[]>(mockCriticalAlerts);
-  const [pricingInsights] = useState<PricingInsight[]>(mockPricingInsights);
-  const [isRealTimeActive, setIsRealTimeActive] = useState(true);
+  const { metrics, loading: metricsLoading, error: metricsError } = useRealTimeMetrics();
+  const { alerts, loading: alertsLoading, error: alertsError } = useCriticalAlerts();
+  const { insights: pricingInsights, loading: insightsLoading, error: insightsError } = usePricingInsights();
+  const [isRealTimeActive] = useState(true);
 
-  // Simulate real-time updates
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (isRealTimeActive) {
-        setMetrics(prev => ({
-          ...prev,
-          lastUpdated: new Date().toISOString(),
-          alertsToday: prev.alertsToday + Math.floor(Math.random() * 2),
-          fraudulentDetected: prev.fraudulentDetected + Math.floor(Math.random() * 2)
-        }));
-      }
-    }, 30000); // Update every 30 seconds
+  // Loading state
+  if (metricsLoading || alertsLoading || insightsLoading) {
+    return (
+      <div className="p-6 bg-gray-50 min-h-screen">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg font-medium text-gray-600">Loading fraud detection dashboard...</div>
+        </div>
+      </div>
+    );
+  }
 
-    return () => clearInterval(interval);
-  }, [isRealTimeActive]);
+  // Error state
+  if (metricsError || alertsError || insightsError) {
+    return (
+      <div className="p-6 bg-gray-50 min-h-screen">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <h3 className="text-lg font-medium text-red-800">Error Loading Dashboard</h3>
+          <p className="text-red-600 mt-2">
+            {metricsError || alertsError || insightsError}
+          </p>
+          <p className="text-sm text-red-600 mt-2">
+            Please ensure your Supabase database is set up correctly and try refreshing the page.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!metrics) {
+    return (
+      <div className="p-6 bg-gray-50 min-h-screen">
+        <div className="text-center text-gray-600">No metrics data available</div>
+      </div>
+    );
+  }
 
   const getSeverityColor = (severity: FraudAlert['severity']) => {
     switch (severity) {
@@ -342,23 +236,23 @@ export function Dashboard() {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Average Claim:</span>
-                    <span className="font-medium">{formatCurrency(insight.averageClaimAmount)}</span>
+                    <span className="font-medium">{formatCurrency(insight.average_claim_amount)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Suspicious Avg:</span>
-                    <span className="font-medium text-red-600">{formatCurrency(insight.suspiciousClaimAmount)}</span>
+                    <span className="font-medium text-red-600">{formatCurrency(insight.suspicious_claim_amount)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Variance:</span>
-                    <span className="font-bold text-red-600">+{insight.variance.toFixed(1)}%</span>
+                    <span className="font-bold text-red-600">+{insight.variance_percentage.toFixed(1)}%</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Flagged Claims:</span>
-                    <span className="font-medium">{insight.flaggedClaims}</span>
+                    <span className="font-medium">{insight.flagged_claims_count}</span>
                   </div>
                   <div className="flex justify-between border-t pt-2">
                     <span className="text-gray-600">Potential Savings:</span>
-                    <span className="font-bold text-green-600">{formatCurrency(insight.potentialSavings)}</span>
+                    <span className="font-bold text-green-600">{formatCurrency(insight.potential_savings)}</span>
                   </div>
                 </div>
               </div>
