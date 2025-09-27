@@ -96,65 +96,65 @@ INSERT INTO patients (id, patient_id, date_of_birth, gender, insurance_info, ris
 -- Insert billing transactions with varying risk profiles
 INSERT INTO billing_transactions (id, transaction_id, provider_id, patient_id, amount, transaction_date, service_date, procedure_code, diagnosis_code, claim_number, status, raw_data, metadata) VALUES
 -- High-risk transaction (Metropolitan Medical Center - flagged provider)
-('880e8400-e29b-41d4-a716-446655440001'::UUID, 'CLM-2024-001567',
- '660e8400-e29b-41d4-a716-446655440001'::UUID, '770e8400-e29b-41d4-a716-446655440001'::UUID,
+('880e8400-e29b-41d4-a716-446655440001', 'CLM-2024-001567',
+ '660e8400-e29b-41d4-a716-446655440001', '770e8400-e29b-41d4-a716-446655440001',
  125000.00, NOW() - INTERVAL '15 minutes', CURRENT_DATE - INTERVAL '2 days',
  '27447', 'M25.561', 'CLM-2024-001567', 'pending',
  '{"original_amount": 125000, "submitted_date": "2024-01-15", "urgency": "routine"}',
  '{"billing_anomaly_flags": ["amount_outlier", "provider_risk"], "auto_flagged": true}'),
 
 -- Phantom billing case (Sunshine Family Practice)
-('880e8400-e29b-41d4-a716-446655440002'::UUID, 'CLM-2024-001589',
- '660e8400-e29b-41d4-a716-446655440002'::UUID, '770e8400-e29b-41d4-a716-446655440002'::UUID,
+('880e8400-e29b-41d4-a716-446655440002', 'CLM-2024-001589',
+ '660e8400-e29b-41d4-a716-446655440002', '770e8400-e29b-41d4-a716-446655440002',
  85000.00, NOW() - INTERVAL '32 minutes', CURRENT_DATE - INTERVAL '5 days',
  '33533', 'I25.10', 'CLM-2024-001589', 'suspended',
  '{"original_amount": 85000, "submitted_date": "2024-01-12", "urgency": "urgent"}',
  '{"phantom_billing_flags": ["no_patient_visit_record", "suspicious_timing"], "investigation_required": true}'),
 
 -- Duplicate claims (Northside Orthopedics)
-('880e8400-e29b-41d4-a716-446655440003'::UUID, 'CLM-2024-001432',
- '660e8400-e29b-41d4-a716-446655440003'::UUID, '770e8400-e29b-41d4-a716-446655440003'::UUID,
+('880e8400-e29b-41d4-a716-446655440003', 'CLM-2024-001432',
+ '660e8400-e29b-41d4-a716-446655440003', '770e8400-e29b-41d4-a716-446655440003',
  12500.00, NOW() - INTERVAL '45 minutes', CURRENT_DATE - INTERVAL '3 days',
  '99214', 'M16.11', 'CLM-2024-001432', 'pending',
  '{"original_amount": 12500, "submitted_date": "2024-01-13", "urgency": "routine"}',
  '{"duplicate_flags": ["similar_claim_exists", "same_date_service"], "confidence": 87}'),
 
 -- Normal transactions (legitimate)
-('880e8400-e29b-41d4-a716-446655440004'::UUID, 'TXN-001234',
- '660e8400-e29b-41d4-a716-446655440004'::UUID, '770e8400-e29b-41d4-a716-446655440004'::UUID,
+('880e8400-e29b-41d4-a716-446655440004', 'TXN-001234',
+ '660e8400-e29b-41d4-a716-446655440004', '770e8400-e29b-41d4-a716-446655440004',
  1250.00, NOW() - INTERVAL '2 hours', CURRENT_DATE - INTERVAL '1 day',
  '70553', 'R06.02', 'CLM-2024-001600', 'approved',
  '{"original_amount": 1250, "submitted_date": "2024-01-16", "urgency": "routine"}',
  '{"clean_transaction": true, "auto_approved": true}'),
 
-('880e8400-e29b-41d4-a716-446655440005'::UUID, 'TXN-001235',
- '660e8400-e29b-41d4-a716-446655440005'::UUID, '770e8400-e29b-41d4-a716-446655440005'::UUID,
+('880e8400-e29b-41d4-a716-446655440005', 'TXN-001235',
+ '660e8400-e29b-41d4-a716-446655440005', '770e8400-e29b-41d4-a716-446655440005',
  89.99, NOW() - INTERVAL '3 hours', CURRENT_DATE - INTERVAL '1 day',
  '80053', 'M48.06', 'CLM-2024-001601', 'approved',
  '{"original_amount": 89.99, "submitted_date": "2024-01-16", "urgency": "routine"}',
  '{"clean_transaction": true, "auto_approved": true}'),
 
 -- Additional transactions for variety
-('880e8400-e29b-41d4-a716-446655440006'::UUID, 'TXN-001236',
- '660e8400-e29b-41d4-a716-446655440001'::UUID, '770e8400-e29b-41d4-a716-446655440003'::UUID,
+('880e8400-e29b-41d4-a716-446655440006', 'TXN-001236',
+ '660e8400-e29b-41d4-a716-446655440001', '770e8400-e29b-41d4-a716-446655440003',
  5000.00, NOW() - INTERVAL '4 hours', CURRENT_DATE - INTERVAL '2 days',
  '99215', 'M25.561', 'CLM-2024-001602', 'declined',
  '{"original_amount": 5000, "submitted_date": "2024-01-14", "urgency": "routine"}',
  '{"high_risk_flags": ["amount_unusual", "provider_history"], "auto_declined": true}'),
 
-('880e8400-e29b-41d4-a716-446655440007'::UUID, 'TXN-001237',
- '660e8400-e29b-41d4-a716-446655440003'::UUID, '770e8400-e29b-41d4-a716-446655440001'::UUID,
+('880e8400-e29b-41d4-a716-446655440007', 'TXN-001237',
+ '660e8400-e29b-41d4-a716-446655440003', '770e8400-e29b-41d4-a716-446655440001',
  45.50, NOW() - INTERVAL '5 hours', CURRENT_DATE - INTERVAL '1 day',
  '85025', 'M25.561', 'CLM-2024-001603', 'approved',
  '{"original_amount": 45.50, "submitted_date": "2024-01-16", "urgency": "routine"}',
  '{"clean_transaction": true, "auto_approved": true}'),
 
-('880e8400-e29b-41d4-a716-446655440008'::UUID, 'TXN-001238',
- '660e8400-e29b-41d4-a716-446655440004'::UUID, '770e8400-e29b-41d4-a716-446655440002'::UUID,
+('880e8400-e29b-41d4-a716-446655440008', 'TXN-001238',
+ '660e8400-e29b-41d4-a716-446655440004', '770e8400-e29b-41d4-a716-446655440002',
  299.99, NOW() - INTERVAL '6 hours', CURRENT_DATE - INTERVAL '2 days',
  '73721', 'M16.11', 'CLM-2024-001604', 'pending',
  '{"original_amount": 299.99, "submitted_date": "2024-01-14", "urgency": "routine"}',
- '{"moderate_risk": true, "manual_review_required": true});
+ '{"moderate_risk": true, "manual_review_required": true}');
 
 -- ============================================================================
 -- TRANSACTION ITEMS
@@ -162,11 +162,11 @@ INSERT INTO billing_transactions (id, transaction_id, provider_id, patient_id, a
 
 -- Add line items for some transactions
 INSERT INTO transaction_items (transaction_id, procedure_code, diagnosis_code, quantity, unit_cost, total_cost, modifier_codes) VALUES
-('880e8400-e29b-41d4-a716-446655440001'::UUID, '27447', 'M25.561', 1, 125000.00, 125000.00, 'RT'),
-('880e8400-e29b-41d4-a716-446655440002'::UUID, '33533', 'I25.10', 1, 85000.00, 85000.00, NULL),
-('880e8400-e29b-41d4-a716-446655440003'::UUID, '99214', 'M16.11', 1, 12500.00, 12500.00, NULL),
-('880e8400-e29b-41d4-a716-446655440004'::UUID, '70553', 'R06.02', 1, 1250.00, 1250.00, '26'),
-('880e8400-e29b-41d4-a716-446655440005'::UUID, '80053', 'M48.06', 1, 89.99, 89.99, NULL);
+('880e8400-e29b-41d4-a716-446655440001', '27447', 'M25.561', 1, 125000.00, 125000.00, 'RT'),
+('880e8400-e29b-41d4-a716-446655440002', '33533', 'I25.10', 1, 85000.00, 85000.00, NULL),
+('880e8400-e29b-41d4-a716-446655440003', '99214', 'M16.11', 1, 12500.00, 12500.00, NULL),
+('880e8400-e29b-41d4-a716-446655440004', '70553', 'R06.02', 1, 1250.00, 1250.00, '26'),
+('880e8400-e29b-41d4-a716-446655440005', '80053', 'M48.06', 1, 89.99, 89.99, NULL);
 
 -- ============================================================================
 -- ANOMALIES
@@ -174,25 +174,25 @@ INSERT INTO transaction_items (transaction_id, procedure_code, diagnosis_code, q
 
 -- Create anomalies for high-risk transactions
 INSERT INTO anomalies (id, transaction_id, anomaly_type, risk_score, confidence, ai_model_version, model_features, gemini_summary, status, detected_at) VALUES
-('990e8400-e29b-41d4-a716-446655440001'::UUID, '880e8400-e29b-41d4-a716-446655440001'::UUID,
+('990e8400-e29b-41d4-a716-446655440001', '880e8400-e29b-41d4-a716-446655440001',
  'billing_anomaly', 9.4, 94.0, 'fraud-detect-v2.1',
  '{"amount_zscore": 4.2, "provider_risk": 8.5, "historical_variance": 340, "procedure_frequency": "unusual"}',
  'Healthcare provider submitting 300% more claims than average with identical diagnostic codes. Pattern indicates potential upcoding fraud scheme.',
  'pending', NOW() - INTERVAL '15 minutes'),
 
-('990e8400-e29b-41d4-a716-446655440002'::UUID, '880e8400-e29b-41d4-a716-446655440002'::UUID,
+('990e8400-e29b-41d4-a716-446655440002', '880e8400-e29b-41d4-a716-446655440002',
  'phantom_billing', 9.1, 91.0, 'fraud-detect-v2.1',
  '{"patient_visit_correlation": 0.0, "service_location_mismatch": true, "provider_risk": 7.2, "timing_anomaly": true}',
  'Services billed for patients with no record of visit or treatment. Cross-reference shows patient was not physically present at claimed service dates.',
  'investigating', NOW() - INTERVAL '32 minutes'),
 
-('990e8400-e29b-41d4-a716-446655440003'::UUID, '880e8400-e29b-41d4-a716-446655440003'::UUID,
+('990e8400-e29b-41d4-a716-446655440003', '880e8400-e29b-41d4-a716-446655440003',
  'duplicate_claims', 8.7, 87.0, 'fraud-detect-v2.1',
  '{"duplicate_probability": 0.87, "time_window_overlap": true, "identical_codes": true, "amount_match": true}',
  'Multiple identical claims submitted across different time periods for the same patient and procedure codes.',
  'pending', NOW() - INTERVAL '45 minutes'),
 
-('990e8400-e29b-41d4-a716-446655440004'::UUID, '880e8400-e29b-41d4-a716-446655440006'::UUID,
+('990e8400-e29b-41d4-a716-446655440004', '880e8400-e29b-41d4-a716-446655440006',
  'amount_anomaly', 9.8, 98.0, 'fraud-detect-v2.1',
  '{"amount_zscore": 5.1, "procedure_code_mismatch": true, "provider_history": "high_risk", "geographical_variance": 450}',
  'Claim amount significantly exceeds typical range for procedure code and geographical area. Provider has history of similar anomalies.',
@@ -302,14 +302,14 @@ INSERT INTO investigation_cases (id, case_number, title, description, severity, 
 ('bb0e8400-e29b-41d4-a716-446655440001', 'INV-2024-001', 'Metropolitan Medical Center Billing Anomaly',
  'Investigation into unusual billing patterns showing 340% increase in claim volume with identical diagnostic codes',
  'critical', 'investigating', '550e8400-e29b-41d4-a716-446655440003', 125000.00,
- ARRAY['aa0e8400-e29b-41d4-a716-446655440001'],
+ ARRAY['aa0e8400-e29b-41d4-a716-446655440001']::UUID[],
  '{"patient_interviews": 0, "medical_records_reviewed": 15, "billing_documents": 45, "provider_response": "pending"}',
  'Initial analysis shows significant discrepancies between claimed services and available medical documentation. Patient interviews pending.'),
 
 ('bb0e8400-e29b-41d4-a716-446655440002', 'INV-2024-002', 'Sunshine Family Practice Phantom Billing',
  'Investigation into services billed for patients with no corresponding visit records',
  'high', 'open', '550e8400-e29b-41d4-a716-446655440003', 85000.00,
- ARRAY['aa0e8400-e29b-41d4-a716-446655440002'],
+ ARRAY['aa0e8400-e29b-41d4-a716-446655440002']::UUID[],
  '{"patient_interviews": 3, "medical_records_reviewed": 8, "location_verification": "in_progress"}',
  'Three patients contacted confirm no services received on billed dates. Location verification in progress.');
 

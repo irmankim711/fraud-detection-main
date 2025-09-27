@@ -7,6 +7,8 @@ This directory contains the complete PostgreSQL database schema for the healthca
 - **01_schema.sql**: Complete database schema with tables, indexes, functions, and triggers
 - **02_security.sql**: Row Level Security (RLS) policies and security functions
 - **03_sample_data.sql**: Realistic test data that matches your mock data structure
+- **04_auth_sync.sql**: Supabase Auth integration and user synchronization
+- **99_verification.sql**: Complete setup verification and testing script
 - **README.md**: This setup guide
 
 ## Setup Instructions
@@ -37,6 +39,18 @@ Execute the SQL files in the following order:
 ```sql
 -- Copy and paste the contents of 03_sample_data.sql into the SQL Editor
 -- This populates the database with realistic test data
+```
+
+#### Step 4: Setup Authentication Integration
+```sql
+-- Copy and paste the contents of 04_auth_sync.sql into the SQL Editor
+-- This enables automatic user sync with Supabase Auth
+```
+
+#### Step 5: Verify Setup (Optional)
+```sql
+-- Copy and paste the contents of 99_verification.sql into the SQL Editor
+-- This verifies your complete setup and shows demo credentials
 ```
 
 ### 3. Verify Installation
