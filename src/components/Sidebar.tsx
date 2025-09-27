@@ -25,6 +25,12 @@ const navigationItems = [
     description: "Fraud alerts and notifications",
   },
   {
+    id: "fraud-monitoring",
+    name: "Fraud Detection",
+    icon: "🛡️",
+    description: "Real-time fraud analysis",
+  },
+  {
     id: "download",
     name: "Reports",
     icon: "📥",

@@ -1,21 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 // Import all components
-import { LoginPage } from './components/LoginPage';
-import { LandingPage } from './components/LandingPage';
-import { Dashboard } from './components/Dashboard';
-import { TransactionTable } from './components/TransactionTable';
-import { AlertsPage } from './components/AlertsPage';
-import { DownloadPage } from './components/DownloadPage';
-import { SettingsPage } from './components/SettingsPage';
-import { UserPage } from './components/UserPage';
-import { Sidebar } from './components/Sidebar';
-import { Header } from './components/Header';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { LoginPage } from "./components/LoginPage";
+import { LandingPage } from "./components/LandingPage";
+import { Dashboard } from "./components/Dashboard";
+import { TransactionTable } from "./components/TransactionTable";
+import { AlertsPage } from "./components/AlertsPage";
+import { DownloadPage } from "./components/DownloadPage";
+import { SettingsPage } from "./components/SettingsPage";
+import { UserPage } from "./components/UserPage";
+import { Sidebar } from "./components/Sidebar";
+import { Header } from "./components/Header";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import FraudMonitoringDashboard from "./components/FraudMonitoringDashboard";
 
 function AppContent() {
   const { user, loading } = useAuth();
-  const [currentPage, setCurrentPage] = useState('dashboard');
+  const [currentPage, setCurrentPage] = useState("dashboard");
   const [showLogin, setShowLogin] = useState(false);
 
   if (loading) {
@@ -38,17 +39,19 @@ function AppContent() {
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'dashboard':
+      case "dashboard":
         return <Dashboard />;
-      case 'transactions':
+      case "transactions":
         return <TransactionTable />;
-      case 'alerts':
+      case "alerts":
         return <AlertsPage />;
-      case 'download':
+      case "fraud-monitoring":
+        return <FraudMonitoringDashboard />;
+      case "download":
         return <DownloadPage />;
-      case 'users':
+      case "users":
         return <UserPage />;
-      case 'settings':
+      case "settings":
         return <SettingsPage />;
       default:
         return <Dashboard />;
@@ -60,9 +63,7 @@ function AppContent() {
       <Sidebar currentPage={currentPage} onPageChange={setCurrentPage} />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-auto">
-          {renderPage()}
-        </main>
+        <main className="flex-1 overflow-auto">{renderPage()}</main>
       </div>
     </div>
   );
