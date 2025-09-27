@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 
 // Import all components
 import { LoginPage } from './components/LoginPage';
+import { LandingPage } from './components/LandingPage';
 import { Dashboard } from './components/Dashboard';
 import { TransactionTable } from './components/TransactionTable';
 import { AlertsPage } from './components/AlertsPage';
 import { DownloadPage } from './components/DownloadPage';
+import { SettingsPage } from './components/SettingsPage';
+import { UserPage } from './components/UserPage';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -13,6 +16,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 function AppContent() {
   const { user, loading } = useAuth();
   const [currentPage, setCurrentPage] = useState('dashboard');
+  const [showLogin, setShowLogin] = useState(false);
 
   if (loading) {
     return (
@@ -26,7 +30,10 @@ function AppContent() {
   }
 
   if (!user) {
-    return <LoginPage />;
+    if (showLogin) {
+      return <LoginPage />;
+    }
+    return <LandingPage onShowLogin={() => setShowLogin(true)} />;
   }
 
   const renderPage = () => {
@@ -39,6 +46,10 @@ function AppContent() {
         return <AlertsPage />;
       case 'download':
         return <DownloadPage />;
+      case 'users':
+        return <UserPage />;
+      case 'settings':
+        return <SettingsPage />;
       default:
         return <Dashboard />;
     }

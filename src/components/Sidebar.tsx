@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface SidebarProps {
   currentPage: string;
@@ -7,29 +7,41 @@ interface SidebarProps {
 
 const navigationItems = [
   {
-    id: 'dashboard',
-    name: 'Dashboard',
-    icon: '📊',
-    description: 'Overview and analytics'
+    id: "dashboard",
+    name: "Dashboard",
+    icon: "📊",
+    description: "Overview and analytics",
   },
   {
-    id: 'transactions',
-    name: 'Transactions',
-    icon: '💳',
-    description: 'Transaction monitoring'
+    id: "transactions",
+    name: "Transactions",
+    icon: "💳",
+    description: "Transaction monitoring",
   },
   {
-    id: 'alerts',
-    name: 'Alerts',
-    icon: '🚨',
-    description: 'Fraud alerts and notifications'
+    id: "alerts",
+    name: "Alerts",
+    icon: "🚨",
+    description: "Fraud alerts and notifications",
   },
   {
-    id: 'download',
-    name: 'Reports',
-    icon: '📥',
-    description: 'Download data and reports'
-  }
+    id: "download",
+    name: "Reports",
+    icon: "📥",
+    description: "Download data and reports",
+  },
+  {
+    id: "users",
+    name: "Users",
+    icon: "👥",
+    description: "User management and profiles",
+  },
+  {
+    id: "settings",
+    name: "Settings",
+    icon: "⚙️",
+    description: "System configuration",
+  },
 ];
 
 export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
@@ -49,8 +61,8 @@ export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
             onClick={() => onPageChange(item.id)}
             className={`w-full flex items-center px-4 py-3 rounded-lg text-left transition duration-200 ${
               currentPage === item.id
-                ? 'bg-blue-600 text-white shadow-lg'
-                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                ? "bg-blue-600 text-white shadow-lg"
+                : "text-gray-300 hover:bg-gray-700 hover:text-white"
             }`}
           >
             <span className="text-xl mr-3">{item.icon}</span>
@@ -64,7 +76,9 @@ export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
 
       {/* System Status */}
       <div className="mt-8 p-4 bg-gray-700 rounded-lg">
-        <h3 className="text-sm font-semibold text-gray-300 mb-3">System Status</h3>
+        <h3 className="text-sm font-semibold text-gray-300 mb-3">
+          System Status
+        </h3>
 
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs">
@@ -92,7 +106,9 @@ export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
 
       {/* Quick Stats */}
       <div className="mt-6 p-4 bg-gray-700 rounded-lg">
-        <h3 className="text-sm font-semibold text-gray-300 mb-3">Today's Summary</h3>
+        <h3 className="text-sm font-semibold text-gray-300 mb-3">
+          Today's Summary
+        </h3>
 
         <div className="space-y-2">
           <div className="flex justify-between text-xs">
