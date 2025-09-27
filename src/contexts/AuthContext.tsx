@@ -59,6 +59,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       password,
     });
+
+    // Debug logging
+    console.log('Login attempt:', { email });
+    console.log('Login result:', result);
+    if (result.error) {
+      console.error('Login error details:', result.error);
+    }
+    if (result.data?.user) {
+      console.log('Login successful, user:', result.data.user);
+    }
+
     setLoading(false);
     return { error: result.error };
   };
@@ -69,6 +80,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       password,
     });
+
+    // Debug logging for signup
+    console.log('Signup attempt:', { email });
+    console.log('Signup result:', result);
+    if (result.error) {
+      console.error('Signup error details:', result.error);
+    }
+    if (result.data?.user) {
+      console.log('Signup successful, user:', result.data.user);
+      console.log('User email_confirmed_at:', result.data.user.email_confirmed_at);
+    }
+
     setLoading(false);
     return { error: result.error };
   };

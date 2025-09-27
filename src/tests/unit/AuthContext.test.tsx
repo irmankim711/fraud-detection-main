@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { AuthProvider, useAuth } from '../../contexts/AuthContext';
+import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 // Mock Supabase
 jest.mock('../../lib/supabase', () => ({
@@ -238,7 +239,7 @@ describe('AuthContext', () => {
   it('should handle auth state changes', async () => {
     const mockStateChangeCallback = jest.fn();
 
-    mockAuth.onAuthStateChange.mockImplementation((callback) => {
+    mockAuth.onAuthStateChange.mockImplementation((callback: (event: AuthChangeEvent, session: Session | null) => void) => {
       mockStateChangeCallback.mockImplementation(callback);
       return {
         data: {

@@ -1,21 +1,21 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import dotenv from 'dotenv';
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import dotenv from "dotenv";
 
 // Load environment variables
 dotenv.config();
 
 // Supabase configuration
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
+const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
+if (!supabaseUrl || !supabaseKey) {
   throw new Error(
-    'Missing Supabase environment variables. Please check your .env file and ensure SUPABASE_URL and SUPABASE_ANON_KEY are set.'
+    "Missing Supabase environment variables. Please check your .env file and ensure SUPABASE_URL and SUPABASE_ANON_KEY are set."
   );
 }
 
 // Create Supabase client
-export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseKey);
 
 // Database Types
 export interface BillingTransaction {
@@ -39,7 +39,7 @@ export interface Anomaly {
   confidence: number;
   ai_model_version?: string;
   gemini_summary?: string;
-  status: 'pending' | 'investigating' | 'resolved' | 'false_positive';
+  status: "pending" | "investigating" | "resolved" | "false_positive";
   detected_at: string;
   billing_transactions?: BillingTransaction;
 }
@@ -47,7 +47,7 @@ export interface Anomaly {
 export interface Alert {
   id: string;
   anomaly_id: string;
-  severity: 'critical' | 'high' | 'medium' | 'low';
+  severity: "critical" | "high" | "medium" | "low";
   title: string;
   description?: string;
   is_resolved: boolean;
